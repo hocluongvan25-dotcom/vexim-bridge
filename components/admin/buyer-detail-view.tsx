@@ -1827,14 +1827,12 @@ function AssignBuyerDialog({
 const TRUST_LABEL_STYLES: Record<TrustLabel, { icon: typeof ShieldCheck; className: string }> = {
   verified: { icon: ShieldCheck, className: "text-chart-4 border-chart-4/30 bg-chart-4/10" },
   factory_assessed: { icon: Factory, className: "text-primary border-primary/30 bg-primary/10" },
-  established: { icon: BadgeCheck, className: "text-muted-foreground border-border bg-muted" },
   new_supplier: { icon: BadgeCheck, className: "text-muted-foreground border-border bg-muted" },
 }
 
 const TRUST_LABEL_TEXT: Record<TrustLabel, { vi: string; en: string }> = {
   verified: { vi: "Đã xác minh KYC", en: "Verified" },
   factory_assessed: { vi: "Đã kiểm định nhà máy", en: "Factory assessed" },
-  established: { vi: "Đã có giao dịch", en: "Established" },
   new_supplier: { vi: "Nhà cung cấp mới", en: "New supplier" },
 }
 
@@ -1842,6 +1840,16 @@ const COMMERCIAL_FLAG_STYLES: Record<CommercialFlagLevel, string> = {
   green: "bg-chart-4",
   yellow: "bg-chart-3",
   red: "bg-destructive",
+  unknown: "bg-muted-foreground/40",
+}
+
+const INELIGIBLE_TEXT: Record<
+  NonNullable<ClientMatchResult["ineligibleReason"]>,
+  { vi: string; en: string }
+> = {
+  already_attached: { vi: "Đã gán", en: "Already attached" },
+  fda_missing: { vi: "Chưa có FDA", en: "No FDA" },
+  fda_expired: { vi: "FDA hết hạn", en: "FDA expired" },
 }
 
 function AIMatchList({
@@ -1936,13 +1944,14 @@ function AIMatchList({
                     <div className="flex flex-wrap items-center gap-2 pt-0.5">
                       {m.commercialFlags.map((f) => (
                         <span
-                          key={f.key}
+                          key={f.factor}
                           className="flex items-center gap-1 text-[10px] text-muted-foreground"
+                          title={f.note}
                         >
                           <span
                             className={`h-1.5 w-1.5 rounded-full ${COMMERCIAL_FLAG_STYLES[f.level]}`}
                           />
-                          {locale === "vi" ? f.messageVi : f.messageEn}
+                          {f.factor}
                         </span>
                       ))}
                     </div>
@@ -1970,10 +1979,10 @@ function AIMatchList({
               <CollapsibleContent>
                 <div className="flex flex-col gap-2 border-t bg-muted/30 px-3 py-3">
                   <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs">
-                    {m.breakdown.map((b) => (
-                      <div key={b.label} className="flex items-center justify-between gap-2">
-                        <span className="truncate text-muted-foreground">{b.label}</span>
-                        <span className="shrink-0 font-medium tabular-nums">{b.score}/100</span>
+                    {m.matchBreakdown.map((b) => (
+                      <div key={b.factor} className="flex items-center justify-between gap-2" title={b.details}>
+                        <span className="truncate text-muted-foreground">{b.factor}</span>
+                        <span className="shrink-0 font-medium tabular-nums">{b.rawScore}/100</span>
                       </div>
                     ))}
                   </div>
@@ -1983,13 +1992,11 @@ function AIMatchList({
                     </span>
                     <Button
                       size="sm"
-                      disabled={pending || m.alreadyAttached}
+                      disabled={pending || !m.eligible}
                       onClick={() => onAssign(m.clientId)}
                     >
-                      {m.alreadyAttached
-                        ? locale === "vi"
-                          ? "Đã gán"
-                          : "Already attached"
+                      {!m.eligible && m.ineligibleReason
+                        ? INELIGIBLE_TEXT[m.ineligibleReason][locale]
                         : locale === "vi"
                           ? "Chọn & gán"
                           : "Select & assign"}
