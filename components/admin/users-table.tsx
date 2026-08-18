@@ -99,9 +99,9 @@ export function UsersTable({
       const res = await updateUserIndustry(userId, nextIndustry)
       setIndustryPendingId(null)
       if (res.ok) {
-        toast.success(t.admin.users.updated)
+        toast.success(t.admin.users.industryUpdated)
       } else {
-        toast.error(t.admin.users.updateFailed, { description: res.error })
+        toast.error(t.admin.users.industryUpdateFailed, { description: res.error })
       }
     })
   }
