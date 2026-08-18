@@ -35,6 +35,10 @@ import {
   Users,
   Link2,
   Sparkles,
+  ChevronDown,
+  ShieldCheck,
+  Factory,
+  BadgeCheck,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -44,6 +48,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Empty, EmptyHeader, EmptyTitle, EmptyDescription } from "@/components/ui/empty"
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible"
 import {
   Dialog,
   DialogContent,
@@ -62,8 +71,9 @@ import {
 import { assessCountryRisk, type RiskLevel } from "@/lib/risk/country-risk"
 import { maskEmail, maskPhone } from "@/lib/buyers/mask"
 import type { Stage, BuyerContact } from "@/lib/supabase/types"
-import { updateBuyer, assignBuyerToClient } from "@/app/admin/buyers/actions"
+import { updateBuyer, assignBuyerToClient, getAIMatchedClients } from "@/app/admin/buyers/actions"
 import { BuyerContactsManager } from "@/components/admin/buyer-contacts-manager"
+import type { ClientMatchResult, TrustLabel, CommercialFlagLevel } from "@/lib/matching/client-types"
 
 // ---------------------------------------------------------------------------
 // Shapes
@@ -244,6 +254,7 @@ export function BuyerDetailView({
   const dateLocale = locale === "vi" ? "vi-VN" : "en-US"
 
   const [assignOpen, setAssignOpen] = useState(false)
+  const [assignMode, setAssignMode] = useState<"az" | "ai">("az")
 
   const risk = useMemo(() => assessCountryRisk(buyer.country), [buyer.country])
 
@@ -296,10 +307,27 @@ export function BuyerDetailView({
           </div>
         </div>
         {canWrite && (
-          <Button onClick={() => setAssignOpen(true)}>
-            <UserPlus className="mr-2 h-4 w-4" />
-            {locale === "vi" ? "Gán cho client" : "Assign to client"}
-          </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setAssignMode("ai")
+                setAssignOpen(true)
+              }}
+            >
+              <Sparkles className="mr-2 h-4 w-4" />
+              AI Match
+            </Button>
+            <Button
+              onClick={() => {
+                setAssignMode("az")
+                setAssignOpen(true)
+              }}
+            >
+              <UserPlus className="mr-2 h-4 w-4" />
+              {locale === "vi" ? "Gán cho client" : "Assign to client"}
+            </Button>
+          </div>
         )}
       </div>
 
@@ -434,7 +462,7 @@ export function BuyerDetailView({
                     <div className="flex flex-col gap-1">
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         <TrendingUp className="h-3.5 w-3.5 text-chart-2" />
-                        {locale === "vi" ? "Xu hướng nhập khẩu" : "Import trend"}
+                        {locale === "vi" ? "Xu hướng nh��p khẩu" : "Import trend"}
                       </div>
                       <Badge 
                         variant="secondary" 

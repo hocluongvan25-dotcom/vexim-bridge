@@ -86,6 +86,10 @@ export type Database = {
           // Drives ANALYTICS_VIEW_OWN scope for AE / Lead Researcher.
           account_manager_id: string | null
           created_at: string
+          // AI Match — KYC verification (Trust Score input)
+          is_verified: boolean
+          verified_at: string | null
+          verified_by: string | null
         }
         Insert: {
           id: string
@@ -104,6 +108,9 @@ export type Database = {
           preferred_language?: PreferredLanguage
           account_manager_id?: string | null
           created_at?: string
+          is_verified?: boolean
+          verified_at?: string | null
+          verified_by?: string | null
         }
         Update: {
           id?: string
@@ -122,6 +129,9 @@ export type Database = {
           preferred_language?: PreferredLanguage
           account_manager_id?: string | null
           created_at?: string
+          is_verified?: boolean
+          verified_at?: string | null
+          verified_by?: string | null
         }
       }
       leads: {
