@@ -35,6 +35,10 @@ import {
   Users,
   Link2,
   Sparkles,
+  NotebookPen,
+  DollarSign,
+  CreditCard,
+  FlaskConical,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -153,16 +157,28 @@ export interface AssignableClient {
   alreadyAttached: boolean
 }
 
+export interface BuyerIntelRollupNote {
+  id: string
+  opportunityId: string
+  clientName: string
+  category: "pricing" | "payment" | "documents" | "testing" | "general"
+  rawNote: string
+  aiSummary: string | null
+  appliedToOpportunity: boolean
+  createdAt: string
+}
+
 interface Props {
   buyer: BuyerDetailData
   opportunities: BuyerOpportunity[]
   replies: BuyerReply[]
   clients: AssignableClient[]
   contacts: BuyerContact[]
+  buyerIntelNotes: BuyerIntelRollupNote[]
   locale: "vi" | "en"
   canWrite: boolean
   canViewPII: boolean
-}
+  }
 
 // Stage labels — mirror buyers-table so the two screens stay consistent
 // without having to thread `t` through.
@@ -224,6 +240,28 @@ const INTENT_LABEL_EN: Record<string, string> = {
   general: "General",
 }
 
+const INTEL_CATEGORY_LABEL_VI: Record<string, string> = {
+  pricing: "Giá cả",
+  payment: "Thanh toán",
+  documents: "Hồ sơ",
+  testing: "Kiểm nghiệm",
+  general: "Chung",
+}
+const INTEL_CATEGORY_LABEL_EN: Record<string, string> = {
+  pricing: "Pricing",
+  payment: "Payment",
+  documents: "Documents",
+  testing: "Testing",
+  general: "General",
+}
+const INTEL_CATEGORY_ICON: Record<string, typeof DollarSign> = {
+  pricing: DollarSign,
+  payment: CreditCard,
+  documents: FileText,
+  testing: FlaskConical,
+  general: NotebookPen,
+}
+
 // ---------------------------------------------------------------------------
 // Main component
 // ---------------------------------------------------------------------------
@@ -234,6 +272,7 @@ export function BuyerDetailView({
   replies,
   clients,
   contacts,
+  buyerIntelNotes,
   locale,
   canWrite,
   canViewPII,
@@ -241,6 +280,7 @@ export function BuyerDetailView({
   const router = useRouter()
   const L = locale === "vi" ? STAGE_LABEL_VI : STAGE_LABEL_EN
   const INTENT = locale === "vi" ? INTENT_LABEL_VI : INTENT_LABEL_EN
+  const INTEL_CAT = locale === "vi" ? INTEL_CATEGORY_LABEL_VI : INTEL_CATEGORY_LABEL_EN
   const dateLocale = locale === "vi" ? "vi-VN" : "en-US"
 
   const [assignOpen, setAssignOpen] = useState(false)
@@ -434,7 +474,7 @@ export function BuyerDetailView({
                     <div className="flex flex-col gap-1">
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         <TrendingUp className="h-3.5 w-3.5 text-chart-2" />
-                        {locale === "vi" ? "Xu hướng nhập khẩu" : "Import trend"}
+                        {locale === "vi" ? "Xu hướng nh��p khẩu" : "Import trend"}
                       </div>
                       <Badge 
                         variant="secondary" 
