@@ -509,6 +509,41 @@ export type Database = {
           updated_at?: string
         }
       }
+      buyer_intel_notes: {
+        Row: {
+          id: string
+          opportunity_id: string
+          category: "pricing" | "payment" | "documents" | "testing" | "general"
+          raw_note: string
+          ai_summary: string | null
+          ai_extracted: Record<string, unknown> | null
+          applied_to_opportunity: boolean
+          created_by: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          opportunity_id: string
+          category?: "pricing" | "payment" | "documents" | "testing" | "general"
+          raw_note: string
+          ai_summary?: string | null
+          ai_extracted?: Record<string, unknown> | null
+          applied_to_opportunity?: boolean
+          created_by?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          opportunity_id?: string
+          category?: "pricing" | "payment" | "documents" | "testing" | "general"
+          raw_note?: string
+          ai_summary?: string | null
+          ai_extracted?: Record<string, unknown> | null
+          applied_to_opportunity?: boolean
+          created_by?: string | null
+          created_at?: string
+        }
+      }
       compliance_docs: {
         Row: {
           id: string
